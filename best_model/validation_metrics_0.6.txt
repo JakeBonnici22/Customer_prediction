@@ -1,0 +1,23 @@
+Best Model: Pipeline(steps=[('scaler', StandardScaler()),
+                ('smtomek', SMOTETomek(random_state=42)),
+                ('selector', SelectKBest(k=8)),
+                ('model',
+                 RandomForestClassifier(class_weight='balanced', max_depth=4,
+                                        min_samples_split=5))])
+Best Threshold: 0.6
+Best Metric Scores:
+Best model with threshold saved as: best_model_with_threshold_0.6.pkl
+
+Metrics with adjusted threshold on the validation data (Class 0):
+Precision: 0.9934030244595554
+Recall: 0.8983937586048646
+F1 Score: 0.943512627723154
+Accuracy: 0.894252458720563
+
+Metrics with adjusted threshold on the validation data (Class 1):
+Precision: 0.1
+Recall: 0.6542553191489362
+F1 Score: 0.1734837799717913
+Accuracy: 0.894252458720563
+
+ROC AUC Score on the validation data: 0.8524928475877086
