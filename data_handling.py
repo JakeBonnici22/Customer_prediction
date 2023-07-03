@@ -26,6 +26,7 @@ variable_groups = [
     'bon_wrt_succdep_g', 'turnover_last_', 'to_l', 'dwcanc_last_', 'dwcount_last_',
     'w_canc_count_ratio_l'
 ]
+
 not_included = [col for col in df_train.columns if not any(group in col for group in variable_groups)]
 not_included.remove('SE_total')
 not_included.remove('GI_total')

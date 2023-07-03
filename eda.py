@@ -6,23 +6,63 @@ import seaborn as sns
 df_train = pd.read_csv('data/merged_countries_train.csv')
 fe_train = pd.read_csv('data/test_fe.csv')
 
-
+print(fe_train.columns.tolist())
 value_counts = df_train['target'].value_counts()
 percentage_1s = (value_counts[1] / len(df_train['target'])) * 100
 percentage_0s = (value_counts[0] / len(df_train['target'])) * 100
 print("Percentage of 1s: {:.2f}%".format(percentage_1s))
 print("Percentage of 0s: {:.2f}%".format(percentage_0s))
+print(df_train.columns.tolist())
+print(df_train.isna().sum())
 
-# print(df_train.isna().sum())
 
-#
+columns_to_plot = ['GOC_to_g_mean', 'SB_to_g_mean', 'ro_g_mean']
+fe_train_columns = ['mk_CurrentCustomer'] + columns_to_plot
+merged_df = pd.merge(fe_train[fe_train_columns], df_train[['mk_CurrentCustomer', 'target']], on='mk_CurrentCustomer')
+data_melted = merged_df.melt(id_vars=['target', 'mk_CurrentCustomer'], var_name='Column', value_name='Value')
+column_order = ['GOC_to_g_mean', 'SB_to_g_mean', 'ro_g_mean']
+plt.figure(figsize=(10, 8))
+ax = sns.barplot(x='Column', y='Value', hue='target', data=data_melted, order=column_order)
+# plt.xlabel('Column', fontsize=14)
+plt.ylabel('Mean Value')
+plt.title('Mean Values of GOC, SB and game rounds grouped by Target', fontsize=16)
+legends = ax.legend(fontsize=14)
+plt.tight_layout()
+plt.savefig('figures/Mean Value by Column and Target.png')
+plt.show()
+
+
+columns_to_plot = ['turnover_last_1day', 'turnover_last_2days', 'turnover_last_3days',
+                   'turnover_last_5days', 'turnover_last_10days', 'turnover_last_20days', 'turnover_last_70days']
+data_to_plot = df_train[columns_to_plot + ['target']]
+data_melted = data_to_plot.melt(id_vars='target', var_name='Turnover Period', value_name='Turnover')
+mean_turnover = data_melted.groupby(['Turnover Period', 'target'])['Turnover'].mean().reset_index()
+mean_turnover['Turnover Period'] = pd.Categorical(mean_turnover['Turnover Period'], categories=columns_to_plot, ordered=True)
+plt.figure(figsize=(12, 10))
+mean_turnover = mean_turnover.sort_values('Turnover Period')
+ax = sns.barplot(x='Turnover Period', y='Turnover', hue='target', data=mean_turnover)
+plt.xlabel('Turnover Period', fontsize=16)
+plt.ylabel('Mean Turnover', fontsize=16)
+plt.title('Mean Turnover by Turnover Period and Target', fontsize=16)
+ax.set_xticklabels(ax.get_xticklabels(), rotation=20, ha='right')
+legends = ax.legend(fontsize=20)
+plt.tight_layout()
+plt.savefig('figures/Mean Turnover by Turnover Period and Target.png')
+plt.show()
+
+
 class_counts = df_train['target'].value_counts()
-class_counts.plot(kind='bar')
+total_count = class_counts.sum()
+percentages = (class_counts / total_count) * 100
+ax = class_counts.plot(kind='bar')
 plt.xlabel('Target')
 plt.ylabel('Count')
 plt.title('Class Distribution')
+for i, count in enumerate(class_counts):
+    plt.text(i, count + 0.5, f'{percentages[i]:.2f}%', ha='center')
 plt.savefig('figures/Class Distribution.png')
 plt.show()
+
 
 # Distribution of 0 and 1 values by Country
 grouped_data = df_train.groupby(['country', 'target']).size().unstack(fill_value=0)
@@ -40,7 +80,7 @@ plt.savefig('figures/Distribution of 0 and 1 values by Country.png')
 plt.show()
 
 
-
+# Distribution of 0 and 1 values by Country
 activity_columns = df_train.columns[df_train.columns.str.startswith('days_g')].tolist()
 target_column = 'target'
 selected_columns = activity_columns + [target_column]
@@ -58,6 +98,7 @@ width = 0.35
 for i, column in enumerate(grouped_data.columns):
     ax.bar([val + i * width for val in x], grouped_data[column], width, label=column)
 ax.legend()
+ax.set_xticklabels(ax.get_xticklabels(), rotation=30, ha='right')
 plt.savefig('figures/Activity Distribution by Target.png')
 plt.show()
 
@@ -132,7 +173,7 @@ plt.show()
 
 
 # Successful and Cancelled Deposits
-mean_succ_dep = ['succ_dep_cnt_g{}'.format(i) for i in  range(1,11,1)]
+mean_succ_dep = ['succ_dep_cnt_g{}'.format(i) for i in range(1,11,1)]
 mean_succ_dep = df_train[mean_succ_dep].mean()
 
 mean_unsucc_dep = df_train.filter(like='unsucc_dep_cnt_g').mean()
@@ -145,8 +186,9 @@ plt.bar(weeks, mean_unsucc_dep, width=bar_width, color='#085B8E', label=' Unsucc
 plt.xlabel('Weeks')
 plt.ylabel('Number of Deposits')
 plt.title('Withdraws by Week')
-plt.xticks(weeks, ['Week ' + str(w) for w in weeks])
+plt.xticks(weeks, ['Week ' + str(w) for w in weeks], rotation=30)
 plt.legend()
+plt.tight_layout()
 plt.savefig('figures/deposits.png')
 plt.show()
 
@@ -178,8 +220,9 @@ ax.set_ylabel('Average of the total Payment Methods')
 ax.set_title('Average of the total Payment Methods by week')
 ax.set_xticks(x)
 ax.set_xticklabels(['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8', 'Week 9',
-                    'Week 10'])
+                    'Week 10'], rotation=30)
 ax.legend()
+plt.tight_layout()
 plt.savefig('figures/total Payment Methods by week.png')
 plt.show()
 

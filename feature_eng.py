@@ -45,6 +45,7 @@ plt.axvline(x=index_threshold, color='k', linestyle=':', label='Selected Compone
 plt.text(index_threshold + 1, cumulative_variance_ratio[index_threshold - 1], f'{index_threshold}', va='center')
 plt.xlabel('Number of Components')
 plt.ylabel('Variance Ratio')
+plt.title('PCA Variance Ratio')
 plt.legend()
 plt.savefig('figures/pca_variance_ratio.png')
 plt.show()
